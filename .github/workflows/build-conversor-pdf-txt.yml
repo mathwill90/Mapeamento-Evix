@@ -42,9 +42,27 @@ jobs:
           --collect-all rapidocr
           conversor_pdf_txt.py
 
+      - name: Sign executable
+        if: ${{ secrets.CODE_SIGNING_PFX_BASE64 != '' }}
+        shell: pwsh
+        working-directory: conversor-pdf-txt
+        env:
+          CODE_SIGNING_PFX_BASE64: ${{ secrets.CODE_SIGNING_PFX_BASE64 }}
+          CODE_SIGNING_PFX_PASSWORD: ${{ secrets.CODE_SIGNING_PFX_PASSWORD }}
+        run: |
+          $pfxPath = Join-Path $env:RUNNER_TEMP "codesign.pfx"
+          [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:CODE_SIGNING_PFX_BASE64))
+          $securePwd = ConvertTo-SecureString -String $env:CODE_SIGNING_PFX_PASSWORD -AsPlainText -Force
+          $cert = Get-PfxCertificate -FilePath $pfxPath -Password $securePwd
+          Set-AuthenticodeSignature -FilePath "dist\ConversorPDFparaTXT.exe" -Certificate $cert -TimestampServer "http://timestamp.digicert.com" -HashAlgorithm SHA256
+          Remove-Item $pfxPath
+          Get-AuthenticodeSignature "dist\ConversorPDFparaTXT.exe" | Format-List
+
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
           name: ConversorPDFparaTXT-windows
-          path: conversor-pdf-txt/dist/ConversorPDFparaTXT.exe
+          path: |
+            conversor-pdf-txt/dist/ConversorPDFparaTXT.exe
+            conversor-pdf-txt/certificado/ConversorPDFparaTXT.cer
           if-no-files-found: error

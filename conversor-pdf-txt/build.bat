@@ -27,10 +27,23 @@ pyinstaller --noconfirm --onefile --windowed ^
   conversor_pdf_txt.py
 
 echo.
-if exist dist\ConversorPDFparaTXT.exe (
-    echo Executavel gerado com sucesso em: dist\ConversorPDFparaTXT.exe
-) else (
+if not exist dist\ConversorPDFparaTXT.exe (
     echo Falha ao gerar o executavel. Verifique as mensagens de erro acima.
+    pause
+    exit /b 1
+)
+
+echo Executavel gerado com sucesso em: dist\ConversorPDFparaTXT.exe
+
+if exist certificado\ConversorPDFparaTXT.pfx (
+    echo.
+    echo Assinando o executavel com o certificado local...
+    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+      "$securePwd = Get-Content 'certificado\pfx_password.txt' -Raw | ConvertTo-SecureString -AsPlainText -Force; $cert = Get-PfxCertificate -FilePath 'certificado\ConversorPDFparaTXT.pfx' -Password $securePwd; Set-AuthenticodeSignature -FilePath 'dist\ConversorPDFparaTXT.exe' -Certificate $cert -TimestampServer 'http://timestamp.digicert.com' -HashAlgorithm SHA256 | Format-List"
+) else (
+    echo.
+    echo Certificado local nao encontrado em certificado\ConversorPDFparaTXT.pfx - executavel gerado sem assinatura.
+    echo Veja o README.md para gerar/instalar o certificado de assinatura.
 )
 
 pause

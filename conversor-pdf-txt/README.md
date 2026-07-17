@@ -65,7 +65,58 @@ python conversor_pdf_txt.py
 
 - A primeira conversão pode demorar mais, pois o `docling` baixa modelos de
   IA na primeira execução (é necessário acesso à internet nesse momento).
-- Se antivírus/SmartScreen do Windows alertar sobre o `.exe` (comum em
-  executáveis não assinados gerados com PyInstaller), escolha "Executar
-  mesmo assim" — o comportamento é esperado para binários sem certificado de
-  assinatura de código.
+
+## Assinatura digital do executável (aviso do SmartScreen)
+
+O `.exe` é assinado com um **certificado autoassinado** (não emitido por uma
+Autoridade Certificadora reconhecida). Isso deixa o executável com uma
+assinatura válida e identificável (autor + integridade do arquivo), mas o
+Windows SmartScreen só para de avisar "editor desconhecido" nas máquinas em
+que esse certificado for instalado como confiável.
+
+### Confiar no certificado em uma máquina (fazer uma vez por PC)
+
+O arquivo público do certificado está em
+`certificado/ConversorPDFparaTXT.cer` (sem a chave privada — seguro para
+distribuir).
+
+1. Copie `ConversorPDFparaTXT.cer` para o PC de destino.
+2. Rode no PowerShell **como Administrador**:
+   ```powershell
+   Import-Certificate -FilePath ".\ConversorPDFparaTXT.cer" -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
+   Import-Certificate -FilePath ".\ConversorPDFparaTXT.cer" -CertStoreLocation Cert:\LocalMachine\Root
+   ```
+   (ou, pela interface: duplo clique no `.cer` → **Instalar Certificado** →
+   **Máquina Local** → **Colocar todos os certificados no repositório
+   seguinte** → escolha **Editores Confiáveis** e depois repita escolhendo
+   **Autoridades de Certificação Raiz Confiáveis**.)
+3. Depois disso, o `ConversorPDFparaTXT.exe` assinado com esse certificado
+   roda nessa máquina sem o aviso do SmartScreen.
+
+Em máquinas onde o certificado não foi instalado, o aviso continua
+aparecendo (é o comportamento esperado de um certificado autoassinado) — aí
+basta escolher **"Mais informações" → "Executar assim mesmo"**.
+
+### Habilitar a assinatura automática no build do GitHub Actions
+
+O workflow só assina o `.exe` se os secrets abaixo estiverem configurados no
+repositório (**Settings → Secrets and variables → Actions → New repository
+secret**). Sem eles, o build funciona normalmente, só que sem assinatura.
+
+- `CODE_SIGNING_PFX_BASE64`: certificado + chave privada (`.pfx`) em base64.
+- `CODE_SIGNING_PFX_PASSWORD`: senha do `.pfx`.
+
+O certificado (chave privada) não fica no repositório — é sensível e só deve
+existir nos secrets do GitHub e, opcionalmente, na sua máquina para builds
+locais.
+
+### Assinatura no build local (`build.bat`)
+
+Para o `build.bat` assinar o `.exe` automaticamente, coloque nesta pasta
+(esses arquivos **não são versionados**, veja `.gitignore`):
+
+- `certificado\ConversorPDFparaTXT.pfx` — o certificado com a chave privada.
+- `certificado\pfx_password.txt` — um arquivo texto só com a senha do `.pfx`.
+
+Se esses arquivos não existirem, o `build.bat` gera o `.exe` normalmente,
+apenas sem assinatura.

@@ -36,6 +36,22 @@ class ConversorApp:
     def _montar_interface(self):
         padding = {"padx": 10, "pady": 6}
 
+        frame_cabecalho = ttk.Frame(self.root)
+        frame_cabecalho.pack(fill="x", padx=10, pady=(10, 0))
+
+        ttk.Label(
+            frame_cabecalho,
+            text="Conversor de PDF para TXT",
+            font=("Segoe UI", 13, "bold"),
+        ).pack(anchor="w")
+
+        ttk.Label(
+            frame_cabecalho,
+            text="por matheus.willinghoefer",
+            font=("Segoe UI", 8),
+            foreground="#888888",
+        ).pack(anchor="w")
+
         frame_modo = ttk.LabelFrame(self.root, text="O que converter?")
         frame_modo.pack(fill="x", **padding)
 
@@ -91,14 +107,6 @@ class ConversorApp:
         self.texto_log.configure(yscrollcommand=scrollbar.set)
         self.texto_log.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-
-        assinatura = ttk.Label(
-            self.root,
-            text="Desenvolvido por matheus.willinghoefer",
-            font=("Segoe UI", 8),
-            foreground="#888888",
-        )
-        assinatura.pack(side="bottom", anchor="e", padx=10, pady=(0, 6))
 
     # ------------------------------------------------------------------
     # Ações da interface

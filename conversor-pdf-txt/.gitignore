@@ -1,0 +1,6 @@
+venv/
+build/
+dist/
+*.spec
+certificado/*.pfx
+certificado/pfx_password.txt
