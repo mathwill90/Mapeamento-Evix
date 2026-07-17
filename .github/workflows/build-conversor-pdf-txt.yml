@@ -1,0 +1,48 @@
+name: Build Conversor PDF para TXT (Windows .exe)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+    paths:
+      - "conversor-pdf-txt/**"
+      - ".github/workflows/build-conversor-pdf-txt.yml"
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: conversor-pdf-txt
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build executable with PyInstaller
+        run: >
+          pyinstaller --noconfirm --onefile --windowed
+          --name "ConversorPDFparaTXT"
+          --collect-all docling
+          --collect-all docling_core
+          --collect-all docling_parse
+          --collect-all docling_ibm_models
+          --collect-all easyocr
+          conversor_pdf_txt.py
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ConversorPDFparaTXT-windows
+          path: conversor-pdf-txt/dist/ConversorPDFparaTXT.exe
+          if-no-files-found: error
