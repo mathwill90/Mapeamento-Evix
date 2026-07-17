@@ -23,6 +23,7 @@ pyinstaller --noconfirm --onefile --windowed ^
   --collect-all docling_parse ^
   --collect-all docling_ibm_models ^
   --collect-all easyocr ^
+  --collect-all rapidocr ^
   conversor_pdf_txt.py
 
 echo.
