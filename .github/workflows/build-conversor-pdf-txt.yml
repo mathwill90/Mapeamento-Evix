@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - claude/pdf-txt-gui-converter-ifabq0
     paths:
       - "conversor-pdf-txt/**"
       - ".github/workflows/build-conversor-pdf-txt.yml"
