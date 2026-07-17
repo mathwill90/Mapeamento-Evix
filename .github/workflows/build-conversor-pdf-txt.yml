@@ -43,7 +43,7 @@ jobs:
           conversor_pdf_txt.py
 
       - name: Sign executable (test)
-        if: ${{ secrets.CODE_SIGNING_PFX_BASE64 != '' }}
+        if: ${{ secrets.CODE_SIGNING_PFX_BASE64 }}
         run: echo "test"
 
       - name: Upload executable artifact
