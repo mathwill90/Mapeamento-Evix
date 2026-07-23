@@ -22,12 +22,18 @@ Pré-requisitos: Python 3.10+ instalado no Windows.
 3. O script cria um ambiente virtual, instala as dependências e roda o
    PyInstaller. Ao final, o executável fica em:
    ```
-   dist\ConversorPDFparaTXT.exe
+   dist\ConversorPDFparaTXT\ConversorPDFparaTXT.exe
    ```
 
-O build pode demorar alguns minutos e o executável final é grande (várias
+O build pode demorar alguns minutos e a pasta final é grande (várias
 centenas de MB a alguns GB), pois o `docling` depende de bibliotecas de
 IA/OCR (PyTorch, EasyOCR, modelos de layout, etc.).
+
+O programa é gerado em modo "pasta" (não é um único arquivo `.exe`) de
+propósito: assim ele abre rápido, sem precisar descompactar tudo a cada
+execução. **Mantenha o `.exe` dentro da pasta `ConversorPDFparaTXT`** — os
+outros arquivos ali são necessários para ele funcionar. Para o dia a dia,
+crie um atalho para o `.exe` na área de trabalho.
 
 ### Opção 2 — Build automático via GitHub Actions (sem precisar de Python local)
 
@@ -39,11 +45,13 @@ runner Windows do GitHub.
 2. Clique em **Run workflow** (ou apenas dê push de alterações dentro de
    `conversor-pdf-txt/`, o que dispara o build automaticamente).
 3. Quando o workflow terminar, baixe o artefato **ConversorPDFparaTXT-windows**
-   gerado na execução — ele contém o `ConversorPDFparaTXT.exe`.
+   gerado na execução — é um `.zip` com a pasta `ConversorPDFparaTXT`
+   completa (o `.exe` e o `.cer` do certificado já vêm juntos).
 
 ## Como usar o programa
 
-1. Abra o `ConversorPDFparaTXT.exe`.
+1. Extraia o `.zip` (se baixou pelo GitHub Actions) e abra o
+   `ConversorPDFparaTXT.exe` que fica dentro da pasta `ConversorPDFparaTXT`.
 2. Escolha o modo: **arquivo(s) individuais** ou **todos os PDFs de uma pasta**.
 3. Clique em **Selecionar...** e escolha os PDFs (ou a pasta).
 4. Marque ou desmarque a opção de gerar o arquivo consolidado

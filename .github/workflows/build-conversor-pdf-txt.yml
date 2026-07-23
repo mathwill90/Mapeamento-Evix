@@ -32,7 +32,7 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: >
-          pyinstaller --noconfirm --onefile --windowed
+          pyinstaller --noconfirm --onedir --windowed
           --name "ConversorPDFparaTXT"
           --collect-all docling
           --collect-all docling_core
@@ -66,15 +66,17 @@ jobs:
           [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:CODE_SIGNING_PFX_BASE64))
           $securePwd = ConvertTo-SecureString -String $env:CODE_SIGNING_PFX_PASSWORD -AsPlainText -Force
           $cert = Get-PfxCertificate -FilePath $pfxPath -Password $securePwd
-          Set-AuthenticodeSignature -FilePath "dist\ConversorPDFparaTXT.exe" -Certificate $cert -TimestampServer "http://timestamp.digicert.com" -HashAlgorithm SHA256
+          Set-AuthenticodeSignature -FilePath "dist\ConversorPDFparaTXT\ConversorPDFparaTXT.exe" -Certificate $cert -TimestampServer "http://timestamp.digicert.com" -HashAlgorithm SHA256
           Remove-Item $pfxPath
-          Get-AuthenticodeSignature "dist\ConversorPDFparaTXT.exe" | Format-List
+          Get-AuthenticodeSignature "dist\ConversorPDFparaTXT\ConversorPDFparaTXT.exe" | Format-List
+
+      - name: Copy certificate into output folder
+        shell: bash
+        run: cp certificado/ConversorPDFparaTXT.cer dist/ConversorPDFparaTXT/
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
           name: ConversorPDFparaTXT-windows
-          path: |
-            conversor-pdf-txt/dist/ConversorPDFparaTXT.exe
-            conversor-pdf-txt/certificado/ConversorPDFparaTXT.cer
+          path: conversor-pdf-txt/dist/ConversorPDFparaTXT/
           if-no-files-found: error

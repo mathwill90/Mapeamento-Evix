@@ -16,7 +16,9 @@ pip install -r requirements.txt
 
 echo.
 echo Gerando executavel (isso pode demorar alguns minutos)...
-pyinstaller --noconfirm --onefile --windowed ^
+REM Modo "pasta" (sem --onefile): abre muito mais rapido, pois nao precisa
+REM descompactar tudo em uma pasta temporaria a cada execucao.
+pyinstaller --noconfirm --onedir --windowed ^
   --name "ConversorPDFparaTXT" ^
   --collect-all docling ^
   --collect-all docling_core ^
@@ -27,19 +29,21 @@ pyinstaller --noconfirm --onefile --windowed ^
   conversor_pdf_txt.py
 
 echo.
-if not exist dist\ConversorPDFparaTXT.exe (
+if not exist dist\ConversorPDFparaTXT\ConversorPDFparaTXT.exe (
     echo Falha ao gerar o executavel. Verifique as mensagens de erro acima.
     pause
     exit /b 1
 )
 
-echo Executavel gerado com sucesso em: dist\ConversorPDFparaTXT.exe
+echo Executavel gerado com sucesso em: dist\ConversorPDFparaTXT\ConversorPDFparaTXT.exe
+echo (mantenha o .exe dentro dessa pasta - ele depende dos outros arquivos ali)
 
 if exist certificado\ConversorPDFparaTXT.pfx (
     echo.
     echo Assinando o executavel com o certificado local...
     powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-      "$securePwd = Get-Content 'certificado\pfx_password.txt' -Raw | ConvertTo-SecureString -AsPlainText -Force; $cert = Get-PfxCertificate -FilePath 'certificado\ConversorPDFparaTXT.pfx' -Password $securePwd; Set-AuthenticodeSignature -FilePath 'dist\ConversorPDFparaTXT.exe' -Certificate $cert -TimestampServer 'http://timestamp.digicert.com' -HashAlgorithm SHA256 | Format-List"
+      "$securePwd = Get-Content 'certificado\pfx_password.txt' -Raw | ConvertTo-SecureString -AsPlainText -Force; $cert = Get-PfxCertificate -FilePath 'certificado\ConversorPDFparaTXT.pfx' -Password $securePwd; Set-AuthenticodeSignature -FilePath 'dist\ConversorPDFparaTXT\ConversorPDFparaTXT.exe' -Certificate $cert -TimestampServer 'http://timestamp.digicert.com' -HashAlgorithm SHA256 | Format-List"
+    copy /y certificado\ConversorPDFparaTXT.cer dist\ConversorPDFparaTXT\ >nul
 ) else (
     echo.
     echo Certificado local nao encontrado em certificado\ConversorPDFparaTXT.pfx - executavel gerado sem assinatura.
