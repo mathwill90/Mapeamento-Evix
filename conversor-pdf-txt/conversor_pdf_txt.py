@@ -10,6 +10,13 @@ Suporta dois modos:
 @author: matheus.willinghoefer
 """
 
+import os
+
+# Evita que o huggingface_hub tente criar links simbolicos ao baixar os
+# modelos do docling: no Windows isso falha com WinError 1314 em contas sem
+# modo desenvolvedor/privilegios de administrador.
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS", "1")
+
 import threading
 from pathlib import Path
 import tkinter as tk
